@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  catalog:
+    build: ./BazarCatalogApi
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_URLS=http://+
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    volumes:
+      - ./BazarCatalogApi/Books.db:/app/Books.db
+    networks:
+      - network
+  order:
+    build: ./BazarOrderApi
+    ports:
+    - "5002:80"
+    environment:
+      - ASPNETCORE_URLS=http://+
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    volumes:
+      - ./BazarOrderApi/Orders.db:/app/Orders.db
+    networks:
+      - network
+    depends_on:
+      - catalog
+  httpd:
+    image: httpd:2
+    ports:
+      - "4000:80"
+    volumes:
+      - ./UI/:/usr/local/apache2/htdocs
+networks:
+  network:
+    driver: bridge
